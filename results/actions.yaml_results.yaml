@@ -3,7 +3,3 @@
   name: disable-aslr
   set_cmd: echo 0 | sudo tee /proc/sys/kernel/randomize_va_space && echo 'ASLR=-no-pie
     -fno-pie' >> env_vars
-- !!python/object:models.ConfigAction
-  cleanup_cmd: rm -f env_vars
-  name: disable-canary
-  set_cmd: echo 'CANARY=-fno-stack-protector' >> env_vars

