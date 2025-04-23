@@ -52,11 +52,11 @@ class ROPTest:
         finally:
             self.cleanup(actions)
 
-        print("Result: " + ("Passed" if result else "Failed") + "\n")
+        print("Result: " + ("Failed" if result else "Passed") + "\n")
 
         return {
             "name": self.name,
             "description": self.description,
             "actions": [action.name for action in actions],
-            "result": result
+            "attack_succeeded": result
         }
