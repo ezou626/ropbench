@@ -15,11 +15,10 @@ void callme() {
   }
 
 void vuln() {
-    char name[64];
     char buffer[64];
 
-    fgets(name, sizeof(name), stdin);
-    printf(name);
+    fgets(buffer, sizeof(buffer), stdin);
+    printf(buffer);
 
     printf("\nSay something:\n");
     gets(buffer);
