@@ -1,38 +1,17 @@
+include env_vars
+export
+
 GCC=gcc
-CLG=clang
 
-UNGUARDED_FLAGS= -O0 -fno-stack-protector -z execstack -g -fno-pie -no-pie -std=c89
-WXORX_FLAGS=-fno-stack-protector -g -fno-pie -no-pie -std=c89
-DEFAULT_FLAGS=-g -std=c89
+CFLAGS= -O0 $(ASLR) $(CANARY) $(WXORX) -g -std=c89
 
-all: bin/clang_unguarded bin/gcc_unguarded bin/clang_wxorx bin/gcc_wxorx bin/clang_default bin/gcc_default
+all: bin/overflow bin/ret2win
 
-unguarded: bin/clang_unguarded bin/gcc_unguarded
-	@echo "Unprotected binaries created."
+bin/overflow: src/overflow.c
+	$(GCC) $(CFLAGS) -o bin/overflow src/overflow.c
 
-wxorx: bin/clang_wxorx bin/gcc_wxorx
-	@echo "WXORX binaries created."
-
-default: bin/clang_default bin/gcc_default
-	@echo "Default binaries created."
-
-bin/clang_unguarded: src/vulnerable_code.c
-	$(CLG) $(UNGUARDED_FLAGS) -o bin/clang_unguarded src/vulnerable_code.c
-
-bin/gcc_unguarded: src/vulnerable_code.c
-	$(GCC) $(UNGUARDED_FLAGS) -o bin/gcc_unguarded src/vulnerable_code.c
-
-bin/clang_wxorx: src/vulnerable_code.c
-	$(CLG) $(WXORX_FLAGS) -o bin/clang_wxorx src/vulnerable_code.c
-
-bin/gcc_wxorx: src/vulnerable_code.c
-	$(GCC) $(WXORX_FLAGS) -o bin/gcc_wxorx src/vulnerable_code.c
-
-bin/clang_default: src/vulnerable_code.c
-	$(CLG) $(DEFAULT_FLAGS) -o bin/clang_default src/vulnerable_code.c
-
-bin/gcc_default: src/vulnerable_code.c
-	$(GCC) $(DEFAULT_FLAGS) -o bin/gcc_default src/vulnerable_code.c
+bin/ret2win: src/ret2win.c
+	$(GCC) $(CFLAGS) -o bin/ret2win src/ret2win.c
 
 clean:
-	rm ./bin/*
+	find ./bin -type f ! -iname 'readme*' -delete
