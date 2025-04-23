@@ -1,9 +1,9 @@
 GCC=gcc
 CLG=clang
 
-UNGUARDED_FLAGS=-fno-stack-protector -z execstack -g -fno-pie -no-pie
-WXORX_FLAGS=-fno-stack-protector -g -fno-pie -no-pie
-DEFAULT_FLAGS=-g
+UNGUARDED_FLAGS= -O0 -fno-stack-protector -z execstack -g -fno-pie -no-pie -std=c89
+WXORX_FLAGS=-fno-stack-protector -g -fno-pie -no-pie -std=c89
+DEFAULT_FLAGS=-g -std=c89
 
 all: bin/clang_unguarded bin/gcc_unguarded bin/clang_wxorx bin/gcc_wxorx bin/clang_default bin/gcc_default
 

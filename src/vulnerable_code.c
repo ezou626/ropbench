@@ -1,23 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void vulnerable() {
-    char buffer[64];
+int foo = 0;
 
-    // Intentionally insecure: reading 128 bytes into a 64-byte buffer
-    printf("Enter some text: ");
-    fgets(buffer, 128, stdin);  // Unsafe use — may overflow 'buffer'
-    
-    printf("You entered: %s\n", buffer);
+void callme() {
+    __asm__ volatile ("pop %%rdi\n\t"
+        "ret"
+        :
+        :
+        : "rdi");
+  }
+
+void vuln() {
+    char buffer[64];
+    puts("Overflow me");
+    gets(buffer);
 }
 
-void secret() {
-    printf("You've reached the secret function!\n");
-    system("/bin/sh");  // Spawn a shell for exploit demonstration
+void marker(const char *msg) {
+    puts(msg);
 }
 
 int main() {
-    vulnerable();
-    printf("Done.\n");
+    marker("hello from marker"); 
+    if (foo == 0x55) {
+        callme();
+    }
+    vuln();
     return 0;
 }
