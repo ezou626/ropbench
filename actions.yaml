@@ -1,0 +1,12 @@
+actions:
+  - name: disable-aslr
+    set: "echo 0 | sudo tee /proc/sys/kernel/randomize_va_space && export ASLR=\"-no-pie -fno-pie\""
+    cleanup: "echo 2 | sudo tee /proc/sys/kernel/randomize_va_space"
+
+  - name: disable-canary
+    set: "export CANARY=\"-fno-stack-protector\""
+    cleanup: "unset CANARY"
+
+  - name: disable-wxorx
+    set: "export WXORX=\"-z execstack\""
+    cleanup: "unset WXORX"
