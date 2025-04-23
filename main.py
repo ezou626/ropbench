@@ -17,9 +17,9 @@ def run_tests(config_file):
     results = []
 
     protections = load_protection_config(config_file)
-    #selected_actions = [protections["disable-aslr"], protections["disable-canary"]]
-    #selected_actions = []
-    selected_actions = [protections["disable-aslr"]]
+    selected_actions = [protections["disable-aslr"], protections["disable-canary"]] # show everything works?
+    #selected_actions = [protections["disable-aslr"]] # canary testing
+    #selected_actions = [] # show everything fails
 
     for test in TESTS:
         result = test.run_test(selected_actions)

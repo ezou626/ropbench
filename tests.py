@@ -10,11 +10,9 @@ class Ret2LibcShellTest(ROPTest):
     def configure_environment(self, selected_actions: list[ConfigAction]):
         super().configure_environment(selected_actions)
 
-        # Rebuild binary
         subprocess.run(['make', 'clean'], check=True)
         subprocess.run(['make', self.binary], check=True)
 
-        # Write randomized flag
         random_string = os.urandom(16).hex()
         self.flag = f"flag_{random_string}"
         with open("flag.txt", "w") as f:
@@ -152,7 +150,6 @@ class FormatStringBypassCanaryTest(ROPTest):
         canary = int(p.recvline().strip(), 16)
         log.info(f"Leaked canary: {hex(canary)}")
 
-        # Get libc base addr
         libc = elf.libc
         libc.address = next(i for l, i in p.libs().items() if 'libc' in l.lower())
         log.info(f"Libc base address: {hex(libc.address)}")
