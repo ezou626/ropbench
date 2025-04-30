@@ -2,7 +2,7 @@ import subprocess
 from pwn import *
 
 class ConfigAction:
-    def __init__(self, name, set_cmd, cleanup_cmd):
+    def __init__(self, name: str, set_cmd: str, cleanup_cmd: str):
         self.name = name
         self.set_cmd = set_cmd
         self.cleanup_cmd = cleanup_cmd
@@ -12,6 +12,22 @@ class ConfigAction:
 
     def cleanup(self):
         subprocess.run(self.cleanup_cmd, shell=True, check=True)
+
+class TestResult:
+    def __init__(self, name: str, result: float, message: str = ""):
+        self.name = name
+        self.result = result
+        self.message = message
+
+    @staticmethod
+    def get_header() -> tuple[str, str, str]:
+        return ("Test Name", "Attack Successful", "Message")
+    
+    def to_tuple(self) -> tuple[str, str, str]:
+        return (self.name, self.result, self.message)
+
+    def __str__(self):
+        return f"{self.name}, {self.result}, {self.message}"
 
 class ROPTest:
     def __init__(self, name, description, binary):
@@ -33,7 +49,7 @@ class ROPTest:
     def execute(self) -> float:
         return 0.0
 
-    def run_test(self, actions: list[ConfigAction]) -> dict:
+    def run_test(self, actions: list[ConfigAction]) -> TestResult:
         log.info("Test: " + self.name)
         log.info("Description: " + self.description + "\n")
 
@@ -47,9 +63,8 @@ class ROPTest:
         finally:
             self.cleanup(actions)
 
-        return {
-            "name": self.name,
-            "description": self.description,
-            "actions": [action.name for action in actions],
-            "attack_succeeded": result
-        }
+        return TestResult(
+            name=self.name,
+            result=result,
+            message="Test completed successfully"
+        )
