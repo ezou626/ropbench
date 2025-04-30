@@ -1,4 +1,6 @@
 __pycache__
 bin/*
 !bin/README.md
+results/*
+!results/README.md
 venv/
