@@ -25,7 +25,7 @@ source venv/bin/activate # on linux
 pip install -r requirements.txt
 ```
 
-Then, run the test script. Sudp is required so the script can disable/enable certain protections like stack canaries, ASLR, etc.
+Then, run the test script. Sudo is required so the script can disable/enable certain protections like stack canaries, ASLR, etc.
 
 ```bash
 sudo python -m main.py
