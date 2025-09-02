@@ -1,6 +1,6 @@
 # ROPBench
 
-A testbed for evaluating defenses against return-oriented programming (ROP) style attacks in 64-bit systems
+A testbed for evaluating defenses against return-oriented programming (ROP) style attacks in 64-bit systems. See the `report.pdf` file for more details.
 
 ## Authors
 Eric Zou (ezou626)
